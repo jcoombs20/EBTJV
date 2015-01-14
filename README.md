@@ -1,2 +1,2 @@
 # EBTJV
-Catchment Assessment and Habitat Patch AcrMap python scripts
+Catchment Assessment and Habitat Patch ArcMap python scripts

@@ -485,6 +485,8 @@ for bktRow in sorted(bktRecords, reverse=True):
 		if tmpCode == "0":
 			tmpBi = 0
 
+	#arcpy.AddMessage("{0}".format(bktRow[6]))
+
 	if tmpYear <= sampYear and tmpBi <> 0:
 		#Determine points distance from nearest stream
 		sampFDRNull = str(arcpy.GetCellValue_management(fdrNull, "{0} {1}".format(bktRow[1], bktRow[2]), "1").getOutput(0))
@@ -522,7 +524,6 @@ for bktRow in sorted(bktRecords, reverse=True):
 					if tmpdamDist > damDis:
 						damHere = "No"
 				#arcpy.AddMessage("tmpdamDist = {0}, damDis = {1}, damHere = {2}".format(tmpdamDist, damDis, damHere))
-
 
 			if ((tmpYear + sampDiff) >= cpArray[cpIndex][4] and cpArray[cpIndex][3] > 1) or cpArray[cpIndex][3] == 0:
 				if fCode != 56600: #Coastline

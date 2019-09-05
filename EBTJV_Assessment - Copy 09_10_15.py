@@ -177,23 +177,23 @@ def getNoData(X,Y, tmpVal):
 
 
 #gets PlusFlowlineVAA records matching catchment polygon feature id
-def get_PFVAA(featureID, catchCnt, tmpLength, tmpCode):
+def get_PFVAA(featureID, catchCnt, tmpLength):
 	try:
 		vaaIndex = vaaID.index(featureID)
-		get_PFlow(vaaArray[vaaIndex][1], catchCnt, vaaArray[vaaIndex][2], featureID, tmpLength, tmpCode)
+		get_PFlow(vaaArray[vaaIndex][1], catchCnt, vaaArray[vaaIndex][2], featureID, tmpLength)
 	except ValueError:
 		arcpy.AddMessage("Error indexing FlowlineVAA comID {0}".format(featureID))
 
 
 #gets PlusFlow records matching the PFVAA NodeNumber
-def get_PFlow(NodeNum, catchCnt, strOrd, oldFeat, tmpLength, tmpCode):
+def get_PFlow(NodeNum, catchCnt, strOrd, oldFeat, tmpLength):
 	try:
 		pfIndex = pfNode.index(NodeNum)
 		tmpFeat = -1
 		while pfArray[pfIndex][0] == NodeNum:
 			if pfArray[pfIndex][1] > 0 and pfArray[pfIndex][1] != tmpFeat:
 				tmpFeat = pfArray[pfIndex][1]
-				get_catchPoly(pfArray[pfIndex][1], catchCnt, strOrd, NodeNum, oldFeat, tmpLength, tmpCode)
+				get_catchPoly(pfArray[pfIndex][1], catchCnt, strOrd, NodeNum, oldFeat, tmpLength)
 			pfIndex += 1
 			if pfIndex == pfCnt:
 				break
@@ -202,13 +202,13 @@ def get_PFlow(NodeNum, catchCnt, strOrd, oldFeat, tmpLength, tmpCode):
 
 
 #gets catchment polygons for catchments upstream of sample point
-def get_catchPoly(featureID, catchCnt, strOrd, NodeNum, fromComID, tmpLength, tmpCode):
+def get_catchPoly(featureID, catchCnt, strOrd, NodeNum, fromComID, tmpLength):
 	try:
 		cpInd = cpFeat.index(featureID)
 	except ValueError:
 		try:
 			vaaInd = vaaID.index(featureID)
-			get_PFlow(vaaArray[vaaInd][1], catchCnt, strOrd, vaaArray[vaaInd][0], tmpLength, tmpCode)
+			get_PFlow(vaaArray[vaaInd][1], catchCnt, strOrd, vaaArray[vaaInd][0], tmpLength)
 			return
 		except ValueError:
 			arcpy.AddMessage("error with featureID {0}".format(featureID))
@@ -242,19 +242,8 @@ def get_catchPoly(featureID, catchCnt, strOrd, NodeNum, fromComID, tmpLength, tm
 
 	tmpFilter = 0
 	if usestrDis == True:
-		if tmpCode[0:3] == "1.1" or tmpCode[0:3] == "1.5":
-			if tmpLength > strDisBKT:
-				tmpFilter = 1
-		elif tmpCode[0] == "1":
-			if tmpLength > strDisBKT and tmpLength > strDisInv:
-				tmpFilter = 1
-			elif tmpLength > strDisBKT:
-				tmpCode = "0" + tmpCode[1:]
-			elif tmpLength > strDisInv:
-				tmpCode = tmpCode[:2] + "1" + tmpCode[3:]
-		else:
-			if tmpLength > strDisInv:
-				tmpFilter = 1
+		if tmpLength > strDis:
+			tmpFilter = 1
 	
 	if ((tmpYear + sampDiff) >= cpArray[cpInd][4] and catchCnt <= cpArray[cpInd][3] and tmpBi == 0 and tmpFilter == 0) or (cpArray[cpInd][3] == 0 and tmpBi == 0 and tmpFilter == 0):
 		if fCode != 56600: #Coastline
@@ -268,7 +257,7 @@ def get_catchPoly(featureID, catchCnt, strOrd, NodeNum, fromComID, tmpLength, tm
 			catchUsed.append(cpArray[cpInd][1])
 		
 			if cpArray[cpInd][6] == "No":
-				get_PFVAA(cpArray[cpInd][1], catchCnt, tmpLength, tmpCode)
+				get_PFVAA(cpArray[cpInd][1], catchCnt, tmpLength)
 
 
 #searches for feature ID when NHD 'FromComID' doesn't exist
@@ -387,12 +376,11 @@ usestrOrd = arcpy.GetParameter(16)
 strOrdBkt = long(arcpy.GetParameterAsText(17))
 strOrdInv = long(arcpy.GetParameterAsText(18))
 usestrDis = arcpy.GetParameter(19)
-strDisBKT = float(arcpy.GetParameterAsText(20))
-strDisInv = float(arcpy.GetParameterAsText(21))
-usedamDis = arcpy.GetParameter(22)
-damDis = float(arcpy.GetParameterAsText(23))
-addDel = arcpy.GetParameter(24)
-classType = arcpy.GetParameter(25)
+strDis = float(arcpy.GetParameterAsText(20))
+usedamDis = arcpy.GetParameter(21)
+damDis = float(arcpy.GetParameterAsText(22))
+addDel = arcpy.GetParameter(23)
+classType = arcpy.GetParameter(24)
 
 tmpDescribe = arcpy.Describe(catchPoly)
 tmpPath = "{0}".format(tmpDescribe.catalogPath)
@@ -431,8 +419,7 @@ if usestrOrd == True:
 	tmpParam.write("Max Stream Order Brown & Rainbow Trout: {0}\n".format(strOrdInv))
 tmpParam.write("Use Max Stream Distance: {0}\n".format(usestrDis))
 if usestrDis == True:
-	tmpParam.write("Max Stream Distance Brook Trout (km): {0}\n".format(strDisBKT))
-	tmpParam.write("Max Stream Distance Brown & Rainbow Trout: {0}\n".format(strDisInv))
+	tmpParam.write("Max Stream Distance (km): {0}\n".format(strDis))
 tmpParam.write("Use Max Barrier Distance: {0}\n".format(usedamDis))
 if usedamDis == True:
 	tmpParam.write("Max Barrier Point Distance (m): {0}\n".format(damDis))
@@ -659,22 +646,11 @@ for bktRow in sorted(bktRecords, reverse=True):
 								tmpFilter = 1
 
 					if usestrDis == True:
-						if tmpCode[0:3] == "1.1" or tmpCode[0:3] == "1.5":
-							if tmpLength > strDisBKT:
-								tmpFilter = 1
-						elif tmpCode[0] == "1":
-							if tmpLength > strDisBKT and tmpLength > strDisInv:
-								tmpFilter = 1
-							elif tmpLength > strDisBKT:
-								tmpCode = "0" + tmpCode[1:]
-							elif tmpLength > strDisInv:
-								tmpCode = tmpCode[:2] + "1" + tmpCode[3:]
-						else:
-							if tmpLength > strDisInv:
-								tmpFilter = 1
+						if tmpLength > strDis:
+							tmpFilter = 1
 
 					if sampLoc != "Below" and tmpCode != "0" and tmpCode != "0P" and tmpCode != "0.5" and tmpCode != "0.5P" and tmpFilter == 0:
-						get_PFVAA(cpArray[cpIndex][1], catchCnt, tmpLength, tmpCode)
+						get_PFVAA(cpArray[cpIndex][1], catchCnt, tmpLength)
 			else:
 				cpArray[cpIndex][8] += "{0} = {1}; ".format(tmpYear, tmpCode)
 		except ValueError:

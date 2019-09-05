@@ -34,9 +34,7 @@ def getNoData(X,Y, tmpVal):
 #Determines most downstream catchment containing salmonids
 def moveDownstream(featureID):												
 	firstFeat = featureID											
-	oldFeat = featureID
-	oldFeatArray = []
-	oldFeatArray.append(featureID)																		
+	oldFeat = featureID											
 	while 1 == 1:											
 		try:										
 			vaaIndex = vaaID.index(featureID)									
@@ -46,26 +44,26 @@ def moveDownstream(featureID):
 					try:							
 						cpInd = cpFeat.index(pfArray[pfIndex][2])						
 												
-						if cpArray[cpInd][6] == "Yes" or cpArray[cpInd][7] == 0 or cpArray[cpInd][2] == "0" or cpArray[cpInd][2] == "0P" or cpArray[cpInd][2] == "-1" or cpArray[cpInd][2] == "0.5" or cpArray[cpInd][2] == "0.5P":						
+						if cpArray[cpInd][6] == "Yes" or cpArray[cpInd][7] == 0 or cpArray[cpInd][2] == "0" or cpArray[cpInd][2] == "0P" or cpArray[cpInd][2] == "-1":						
 							if cpArray[cpInd][11] == "Above" and cpArray[cpInd][2] != "0" and cpArray[cpInd][2] != "0P":					
 								if usestrOrd == True:
 									if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":
 										if cpArray[cpInd][7] > strOrdBkt:	
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+											oldFeat = check_oldFeat(oldFeat)
 											return oldFeat
 										else:	
 											featureID = cpArray[cpInd][1]
 											return featureID
 									elif cpArray[cpInd][2][0] == "1":		
 										if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:	
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+											oldFeat = check_oldFeat(oldFeat)
 											return oldFeat
 										else:	
 											featureID = cpArray[cpInd][1]
 											return featureID
 									else:		
 										if cpArray[cpInd][7] > strOrdInv:	
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+											oldFeat = check_oldFeat(oldFeat)
 											return oldFeat
 										else:	
 											featureID = cpArray[cpInd][1]
@@ -74,30 +72,30 @@ def moveDownstream(featureID):
 									featureID = cpArray[cpInd][1]								
 									return featureID				
 							else:					
-								oldFeat = check_oldFeat(oldFeat, oldFeatArray)				
+								oldFeat = check_oldFeat(oldFeat)				
 								return oldFeat				
 						else:						
 							if usepntDis == True:					
 								if cpArray[cpInd][5] > pntDis:				
-									oldFeat = check_oldFeat(oldFeat, oldFeatArray)			
+									oldFeat = check_oldFeat(oldFeat)			
 									return oldFeat			
 								else:				
 									if usestrOrd == True:			
 										if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":		
 											if cpArray[cpInd][7] > strOrdBkt:	
-												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+												oldFeat = check_oldFeat(oldFeat)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
 										elif cpArray[cpInd][2][0] == "1":		
 											if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:	
-												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+												oldFeat = check_oldFeat(oldFeat)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
 										else:		
 											if cpArray[cpInd][7] > strOrdInv:	
-												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+												oldFeat = check_oldFeat(oldFeat)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
@@ -107,19 +105,19 @@ def moveDownstream(featureID):
 								if usestrOrd == True:				
 									if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":			
 										if cpArray[cpInd][7] > strOrdBkt:		
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
+											oldFeat = check_oldFeat(oldFeat)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
 									elif cpArray[cpInd][2][0] == "1":			
 										if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:		
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
+											oldFeat = check_oldFeat(oldFeat)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
 									else:			
 										if cpArray[cpInd][7] > strOrdInv:		
-											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
+											oldFeat = check_oldFeat(oldFeat)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
@@ -128,30 +126,28 @@ def moveDownstream(featureID):
 												
 					except ValueError:							
 						featureID = pfArray[pfIndex][2]						
-					oldFeat = featureID
-					oldFeatArray.append(featureID)							
+					oldFeat = featureID							
 				except ValueError:								
 					arcpy.AddMessage("Error indexing Flowline Node Number {0}".format(vaaArray[vaaIndex][5]))							
 					tmpFile.write("{0}\t{1}\t{2}\n".format(vaaArray[vaaIndex][5], oldFeat, firstFeat))							
 					return firstFeat							
 			else:									
-				oldFeat = check_oldFeat(oldFeat, oldFeatArray)								
+				oldFeat = check_oldFeat(oldFeat)								
 				return oldFeat								
 		except ValueError:										
 			arcpy.AddMessage("Error indexing FlowlineVAA comID {0}".format(featureID))									
 			return firstFeat									
 
 #Make sure returned feature is a catchment
-def check_oldFeat(oldFeat, oldFeatArray):
-	i = oldFeatArray.index(oldFeat)
+def check_oldFeat(oldFeat):
 	while 1 == 1:
 		try:
-			cpIndex = cpFeat.index(oldFeatArray[i])
-			oldFeat = oldFeatArray[i]
+			cpIndex = cpFeat.index(oldFeat)
 			break
 		except ValueError:
-			i = i - 1
-
+			vaaIndex = vaaID.index(oldFeat)
+			pfIndex = pfNode.index(vaaArray[vaaIndex][1])
+			oldFeat = pfArray[pfIndex][1]
 	return oldFeat
 
 #Determines catchments in patch moving upstream from most downstream catchment containing salmonids
@@ -188,7 +184,7 @@ def get_catchPolyUS(featureID, NodeNum, fromComID, cumDist):
 			if catch == cpArray[cpInd][1]:
 				tmpBi = 1
 				break
-		if cpArray[cpInd][2] == "-1" or cpArray[cpInd][2] == "0" or cpArray[cpInd][2] == "0P" or cpArray[cpInd][2] == "0.5" or cpArray[cpInd][2] == "0.5P":
+		if cpArray[cpInd][2] == "-1":
 			tmpBi = 1
 		
 		if tmpBi == 0:
@@ -383,7 +379,7 @@ tmpFile = open("{0}/Patch Error Log.txt".format(outPath), "w")
 tmpFile.write("Node\toldFeat\tfirstFeat\n")
 
 #Write parameters to file
-tmpParam = open("{0}/Patch Wild Trout Parameter Settings.txt".format(outPath), "w")
+tmpParam = open("{0}/Patch Parameter Settings.txt".format(outPath), "w")
 tmpParam.write("Catchment Feature Layer: {0}\n".format(catchPoly))
 tmpParam.write("Flowline Feature Layer: {0}\n".format(streams))
 tmpParam.write("Barrier Feature Layer: {0}\n".format(dams))
@@ -417,7 +413,7 @@ streamFields = ["COMID", "SHAPE@"]
 VAAFields = ["COMID", "FromNode", "STREAMORDE", "LengthKM", "FCODE", "ToNode"]
 damFields = ["FEATUREID", "SHAPE@X", "SHAPE@Y"]
 PFlowFields = ["NodeNumber", "FromComId", "ToComId"]
-catchFields = ["Str_Order", "FEATUREID", "Catch_Cnt", "Samp_Loc", "Samp_Dist", "EBTJV_Code"]
+catchFields = ["Str_Order", "FEATUREID", "Catch_Cnt", "Samp_Loc", "Samp_Dist"]
 
 #read catchPoly records into array
 arcpy.AddMessage("Reading Catchment records into array...")
@@ -514,9 +510,7 @@ for catchRow in sorted(catchRecords, key=lambda k: (k[0], -k[2]), reverse=True):
 		cpIndex = cpFeat.index(catchRow[1])
 		comCodes.append(cpArray[cpIndex][2])
 
-		if catchRow[5] == "0" or catchRow[5] == "0P" or  catchRow[5] == "0.5" or catchRow[5] == "0P":
-			tmpComId = catchRow[1]
-		elif catchRow[3] == "Above":
+		if catchRow[3] == "Above":
 			tmpComId = catchRow[1]
 		elif usepntDis == True:
 			if catchRow[4] > pntDis:
@@ -554,7 +548,7 @@ for catchRow in sorted(catchRecords, key=lambda k: (k[0], -k[2]), reverse=True):
 				cpUsed.append(tmpComId)
 				comCodes.append(cpArray[cpIndex][2])
 
-		if cpArray[cpIndex][2] != "0" and cpArray[cpIndex][2] != "0P" and cpArray[cpIndex][2] != "0.5" and cpArray[cpIndex][2] != "0.5P" and cpArray[cpIndex][2] != "-1" and tmpBi == 0:
+		if cpArray[cpIndex][2] != "0" and cpArray[cpIndex][2] != "0P" and tmpBi == 0:
 			if  cpArray[cpIndex][6] != "Yes" or cpArray[cpIndex][11] != "Below":
 				if usestrOrd == True:
 					if cpArray[cpIndex][2][0:3] == "1.1" or cpArray[cpIndex][2][0:3] == "1.5":
@@ -662,23 +656,23 @@ for dup in dupsFID:
 		delete.deleteRow()
 
 #Create layers for each salmonid species
-#arcpy.AddMessage("Making patch layer for each salmonid species...")
+arcpy.AddMessage("Making patch layer for each salmonid species...")
 
-#a = outFile.index(".")
+a = outFile.index(".")
 
-#tmpStr = "{0}_BKT.shp".format(outFile[:a])
-#tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
-#whereClause = '"EBTJV_Code" = ' + "'1.1' or " + '"EBTJV_Code" = ' + "'1.2' or " + '"EBTJV_Code" = ' + "'1.3' or " + '"EBTJV_Code" = ' + "'1.4'" 
-#arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
+tmpStr = "{0}_BKT.shp".format(outFile[:a])
+tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
+whereClause = '"EBTJV_Code" = ' + "'1.1' or " + '"EBTJV_Code" = ' + "'1.2' or " + '"EBTJV_Code" = ' + "'1.3' or " + '"EBTJV_Code" = ' + "'1.4'" 
+arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
 
-#tmpStr = "{0}_BNT.shp".format(outFile[:a])
-#tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
-#whereClause = '"EBTJV_Code" = ' + "'0.2' or " + '"EBTJV_Code" = ' + "'0.4' or " + '"EBTJV_Code" = ' + "'1.2' or " + '"EBTJV_Code" = ' + "'1.4'" 
-#arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
+tmpStr = "{0}_BNT.shp".format(outFile[:a])
+tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
+whereClause = '"EBTJV_Code" = ' + "'0.2' or " + '"EBTJV_Code" = ' + "'0.4' or " + '"EBTJV_Code" = ' + "'1.2' or " + '"EBTJV_Code" = ' + "'1.4'" 
+arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
 
-#tmpStr = "{0}_RBT.shp".format(outFile[:a])
-#tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
-#whereClause = '"EBTJV_Code" = ' + "'0.3' or " + '"EBTJV_Code" = ' + "'0.4' or " + '"EBTJV_Code" = ' + "'1.3' or " + '"EBTJV_Code" = ' + "'1.4'" 
-#arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
+tmpStr = "{0}_RBT.shp".format(outFile[:a])
+tmpOutput = "{0}\\{1}".format(outPath, tmpStr)
+whereClause = '"EBTJV_Code" = ' + "'0.3' or " + '"EBTJV_Code" = ' + "'0.4' or " + '"EBTJV_Code" = ' + "'1.3' or " + '"EBTJV_Code" = ' + "'1.4'" 
+arcpy.Select_analysis(outName, tmpOutput, '{0}'.format(whereClause))
 
 tmpFile.close()

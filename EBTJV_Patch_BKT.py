@@ -33,8 +33,10 @@ def getNoData(X,Y, tmpVal):
 
 #Determines most downstream catchment containing salmonids
 def moveDownstream(featureID):												
-	firstFeat = featureID											
+	firstFeat = featureID
 	oldFeat = featureID											
+	oldFeatArray = []
+	oldFeatArray.append(featureID)											
 	while 1 == 1:											
 		try:										
 			vaaIndex = vaaID.index(featureID)									
@@ -50,53 +52,53 @@ def moveDownstream(featureID):
 								if usestrOrd == True:
 									if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":
 										if cpArray[cpInd][7] > strOrdBkt:	
-											oldFeat = check_oldFeat(oldFeat)
+											oldFeat = check_oldFeat(oldFeat, oldFeatArray)
 											return oldFeat
 										else:	
 											featureID = cpArray[cpInd][1]
 											return featureID
 									elif cpArray[cpInd][2][0] == "1":		
 										if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:	
-											oldFeat = check_oldFeat(oldFeat)
+											oldFeat = check_oldFeat(oldFeat, oldFeatArray)
 											return oldFeat
 										else:	
 											featureID = cpArray[cpInd][1]
 											return featureID
 									else:		
-										if cpArray[cpInd][7] > strOrdInv:	
-											oldFeat = check_oldFeat(oldFeat)
-											return oldFeat
-										else:	
-											featureID = cpArray[cpInd][1]
-											return featureID
+										#if cpArray[cpInd][7] > strOrdInv:	
+										oldFeat = check_oldFeat(oldFeat, oldFeatArray)
+										return oldFeat
+										#else:	
+										#featureID = cpArray[cpInd][1]
+										#return featureID
 								else:			
 									featureID = cpArray[cpInd][1]								
 									return featureID				
 							else:					
-								oldFeat = check_oldFeat(oldFeat)				
+								oldFeat = check_oldFeat(oldFeat, oldFeatArray)				
 								return oldFeat				
 						else:						
 							if usepntDis == True:					
 								if cpArray[cpInd][5] > pntDis:				
-									oldFeat = check_oldFeat(oldFeat)			
+									oldFeat = check_oldFeat(oldFeat, oldFeatArray)			
 									return oldFeat			
 								else:				
 									if usestrOrd == True:			
 										if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":		
 											if cpArray[cpInd][7] > strOrdBkt:	
-												oldFeat = check_oldFeat(oldFeat)
+												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
 										elif cpArray[cpInd][2][0] == "1":		
 											if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:	
-												oldFeat = check_oldFeat(oldFeat)
+												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
 										else:		
 											if cpArray[cpInd][7] > strOrdInv:	
-												oldFeat = check_oldFeat(oldFeat)
+												oldFeat = check_oldFeat(oldFeat, oldFeatArray)
 												return oldFeat
 											else:	
 												featureID = cpArray[cpInd][1]
@@ -106,19 +108,19 @@ def moveDownstream(featureID):
 								if usestrOrd == True:				
 									if cpArray[cpInd][2][0:3] == "1.1" or cpArray[cpInd][2][0:3] == "1.5":			
 										if cpArray[cpInd][7] > strOrdBkt:		
-											oldFeat = check_oldFeat(oldFeat)	
+											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
 									elif cpArray[cpInd][2][0] == "1":			
 										if cpArray[cpInd][7] > strOrdBkt and cpArray[cpInd][7] > strOrdInv:		
-											oldFeat = check_oldFeat(oldFeat)	
+											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
 									else:			
 										if cpArray[cpInd][7] > strOrdInv:		
-											oldFeat = check_oldFeat(oldFeat)	
+											oldFeat = check_oldFeat(oldFeat, oldFeatArray)	
 											return oldFeat	
 										else:		
 											featureID = cpArray[cpInd][1]	
@@ -127,28 +129,31 @@ def moveDownstream(featureID):
 												
 					except ValueError:							
 						featureID = pfArray[pfIndex][2]						
-					oldFeat = featureID							
+					oldFeat = featureID
+					oldFeatArray.append(featureID)
+					#arcpy.AddMessage("oldFeat: {0}".format(featureID))							
 				except ValueError:								
 					arcpy.AddMessage("Error indexing Flowline Node Number {0}".format(vaaArray[vaaIndex][5]))							
 					tmpFile.write("{0}\t{1}\t{2}\n".format(vaaArray[vaaIndex][5], oldFeat, firstFeat))							
 					return firstFeat							
 			else:									
-				oldFeat = check_oldFeat(oldFeat)								
+				oldFeat = check_oldFeat(oldFeat, oldFeatArray)								
 				return oldFeat								
 		except ValueError:										
 			arcpy.AddMessage("Error indexing FlowlineVAA comID {0}".format(featureID))									
 			return firstFeat									
 
 #Make sure returned feature is a catchment
-def check_oldFeat(oldFeat):
+def check_oldFeat(oldFeat, oldFeatArray):
+	i = oldFeatArray.index(oldFeat)
 	while 1 == 1:
 		try:
-			cpIndex = cpFeat.index(oldFeat)
+			cpIndex = cpFeat.index(oldFeatArray[i])
+			oldFeat = oldFeatArray[i]
 			break
 		except ValueError:
-			vaaIndex = vaaID.index(oldFeat)
-			pfIndex = pfNode.index(vaaArray[vaaIndex][1])
-			oldFeat = pfArray[pfIndex][1]
+			i = i - 1
+
 	return oldFeat
 
 #Determines catchments in patch moving upstream from most downstream catchment containing salmonids
@@ -381,7 +386,7 @@ tmpFile = open("{0}/Patch Error Log.txt".format(outPath), "w")
 tmpFile.write("Node\toldFeat\tfirstFeat\n")
 
 #Write parameters to file
-tmpParam = open("{0}/Patch Parameter Settings.txt".format(outPath), "w")
+tmpParam = open("{0}/Patch BKT Parameter Settings.txt".format(outPath), "w")
 tmpParam.write("Catchment Feature Layer: {0}\n".format(catchPoly))
 tmpParam.write("Flowline Feature Layer: {0}\n".format(streams))
 tmpParam.write("Barrier Feature Layer: {0}\n".format(dams))
@@ -523,6 +528,7 @@ for catchRow in sorted(catchRecords, key=lambda k: (k[0], -k[2]), reverse=True):
 			else:
 				tmpComId = moveDownstream(catchRow[1])
 		else:
+			#arcpy.AddMessage("moving downstream")
 			tmpComId = moveDownstream(catchRow[1])
 
 		#arcpy.AddMessage("catchRow: {0}, tmpComId: {1}".format(catchRow[1], tmpComId))
